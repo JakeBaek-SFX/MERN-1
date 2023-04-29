@@ -32,11 +32,11 @@
     <form action="/add" method="POST">
       <div class="m-2">
         <label for="exampleInputEmail1" class="form-label">thing to be done</label>
-        <input type="text" class="form-control" id="toDo" aria-describedby="toDo">
+        <input type="text" class="form-control" name="toDo" id="toDo" aria-describedby="toDo">
       </div>
       <div class="m-2">
         <label for="exampleInputPassword1" class="form-label">Due date</label>
-        <input type="datetime-local" class="form-control" id="dueDate">
+        <input type="datetime-local" class="form-control" name="dueDate" id="dueDate">
       </div>
       <button type="submit" class="btn btn-primary m-2">Submit</button>
     </form>
