@@ -27,21 +27,50 @@ MongoClient.connect(uri, { useUnifiedTopology: true }, function (err, client) {
   app.get('/', (req, res)=>{
     res.sendFile(__dirname + '/index.html')
   })
+
+  app.get('/results', (req, res)=>{
+    res.render('results.ejs');
+  })
   
-  app.post('/add', (req, res) => {
+  app.post('/add', (request, results) => {
     db = client.db('Mern-to-do');
-    db.collection('post').insertOne({toDo : req.body.toDo, due : req.body.dueDate} , function(err, res){
-      console.log('SUCCESS');
-      res.send({ status: 'SUCCESS' });
+    db.collection('counter').findOne({name: 'totalPost'}, (req, res)=>{
+      const counter = res.totalPost;
+      console.log('counter', counter);
+      db.collection('post').insertOne({_id: counter + 1, toDo : request.body.toDo, due : request.body.dueDate} , function(err, res){
+        db.collection('counter').updateOne({name: 'totalPost'} , { $inc : {totalPost: 1}},  function(err, res){
+          results.redirect('/list');
+        });
+      });
     });
   });
   
   app.get('/list', (req, res)=>{
     db = client.db('Mern-to-do');
     db.collection('post').find().toArray((err, data)=>{
-      console.log('res', data);
+      console.log('data', data);
       res.render('list.ejs', {results: data});
     });
-    
   });
+    
+  app.get('/detail/:id', (req, res)=>{
+    db = client.db('Mern-to-do');
+    db.collection('post').findOne({_id: parseInt(req.params.id) }, (err, data)=>{
+      console.log('data', data);
+      if(data){
+        res.render('detail.ejs', {result: data});
+      }
+    });
+  });
+
+  app.delete('/delete', (req, res)=>{
+    const id = req.body._id
+    db = client.db('Mern-to-do');
+    db.collection('post').deleteOne({_id: parseInt(id)}, function(err, req, results, next){
+      if(err){
+        res.status(400).send();
+      }
+      res.status(200).send();
+    });
+  })
 });
